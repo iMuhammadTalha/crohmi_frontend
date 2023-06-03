@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+    web:
+        build:
+            context: .
+        ports:
+            - 80:80
+        volumes:
+            - .:/var/www/html/
+        command: >
+            sh -c "/usr/sbin/apache2ctl -D FOREGROUND"
+        networks:
+            - gsm_django_link
+            - frontend
+        depends_on:
+            db:
+                condition: service_healthy
+
+    db:
+        image: mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: WJ6i5qy_
+            MYSQL_PASSWORD: WJ6i5qy_
+            MYSQL_DATABASE: crohmi_portal
+            MYSQL_USER: crohmi
+        ports:
+            - 3306:3306
+        networks:
+            - frontend
+        volumes:
+            - mysql-data:/var/lib/mysql
+        healthcheck:
+            test: "/usr/bin/mysql --user=root --password=WJ6i5qy_ --execute \"SHOW DATABASES;\""
+            interval: 2s
+            timeout: 20s
+            retries: 10
+
+volumes:
+    mysql-data:
+
+networks:
+    gsm_django_link:
+        external: true
+    frontend:
